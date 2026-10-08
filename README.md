@@ -1,36 +1,57 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# PRF Studios — prfstudios.in
 
-## Getting Started
+Showcase website for **PRF Studios**, the film, music, digital-content and production-services company of the Pothraj Group (Bengaluru, since 1994).
 
-First, run the development server:
+Built with Next.js 16 (App Router, static export), Tailwind CSS v4, GSAP 3 (ScrollTrigger, SplitText, Flip) and Lenis smooth scrolling.
+
+## Commands
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev      # local development at http://localhost:3000
+npm run build    # static site written to /out
+npm run start    # preview /out locally
+npm run assets   # regenerate optimised images, icons and OG images from /assets-src
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Deploying to prfstudios.in
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+`npm run build` produces a fully static site in `out/`. Upload the **contents** of `out/` to the web root.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **cPanel / Apache (Hostinger, GoDaddy, BigRock…)**: upload to `public_html/`. The included `.htaccess` handles HTTPS, `www` → bare domain, trailing slashes, the 404 page and caching.
+- **Netlify / Cloudflare Pages / Vercel**: build command `npm run build`, output directory `out`.
+- **Nginx**: point `root` at `out/` and use `try_files $uri $uri/ $uri.html =404; error_page 404 /404.html;`.
 
-## Learn More
+## Routes
 
-To learn more about Next.js, take a look at the following resources:
+| Route | Page |
+| --- | --- |
+| `/` | Home |
+| `/studio/` | About the studio |
+| `/divisions/` + `/divisions/[slug]/` | PRF Studios, Videa Films, PRF Music, PRF Digital |
+| `/services/` + `/services/[slug]/` | The seven production stages |
+| `/work/` | Heritage filmography (filterable) and formats |
+| `/facilities/` | Shooting floor, recording, dubbing, editing, CG |
+| `/legacy/` | The four heritage banners |
+| `/contact/` | Enquiry form, details, map |
+| `/privacy/` | Privacy policy |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+`/sitemap.xml`, `/robots.txt` and `/manifest.webmanifest` are generated at build time.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Editing content
 
-## Deploy on Vercel
+- **Contact details, navigation, SEO keywords** — `lib/site.ts`
+- **Divisions, services, banners, filmography, facilities** — `lib/content.ts`
+- **Images** — drop originals into `assets-src/` and run `npm run assets`
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Motion
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Pages are server components that opt into animation with data attributes, handled by `components/motion/initMotion.ts`:
+
+`data-split` (masked line reveal) · `data-reveal` · `data-stagger` · `data-clip` (image wipe) · `data-parallax` · `data-counter` · `data-scrub-words` · `data-progress-line` · `data-instant` (play on load).
+
+`app/template.tsx` runs the first-visit preloader and the curtain transition between routes. Everything respects `prefers-reduced-motion`, and content stays visible if JavaScript fails to load.
+
+## Contact form
+
+Because the site is static, the enquiry form opens the visitor's email app with a pre-filled message to `info@pothrajgroup.com`. To receive submissions directly, swap the `send` handler in `components/ContactForm.tsx` for a form service (Formspree, Web3Forms, Basin) or an API endpoint.
